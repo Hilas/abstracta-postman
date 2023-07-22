@@ -1,0 +1,159 @@
+{
+	"info": {
+		"_postman_id": "7979f7c2-2af4-45aa-a574-0c3d918d6492",
+		"name": "abstracta",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28698857"
+	},
+	"item": [
+		{
+			"name": "Create User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful response with code 200 OK\", function() {",
+							"    pm.response.to.have.status(200).and.to.have.status(\"OK\");",
+							"});",
+							"",
+							"const jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Type response\", function() {",
+							"    pm.expect(jsonData.type).to.equal(pm.variables.get(\"type\")).and.to.be.a('string');",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"{{username}}\",\n  \"firstName\": \"{{firstName}}\",\n  \"lastName\": \"{{lastName}}\",\n  \"email\": \"{{mail}}\",\n  \"password\": \"{{password}}\",\n  \"phone\": \"{{phone}}\",\n  \"userStatus\": 1\n}"
+				},
+				"url": {
+					"raw": "{{api.url}}/v2/user",
+					"host": [
+						"{{api.url}}"
+					],
+					"path": [
+						"v2",
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful response with code 200 OK\", function() {",
+							"    pm.response.to.have.status(200).and.to.have.status(\"OK\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api.url}}/v2/user/login?username={{username}}&password={{password}}",
+					"host": [
+						"{{api.url}}"
+					],
+					"path": [
+						"v2",
+						"user",
+						"login"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "{{username}}"
+						},
+						{
+							"key": "password",
+							"value": "{{password}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Pet Status",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Cantidad de mascotas con Status disponible\", function() {",
+							"    pm.expect(Object.keys(jsonData).length<0);",
+							"});",
+							"",
+							"pm.test(\"Validate the response has the correct name and status\", function () {",
+							"    pm.expect(jsonData).to.be.an('array'); // Asserting that the response is an array",
+							"    pm.expect(jsonData[0]).to.have.property('name', 'fish'); // Asserting that the name property is 'fish'",
+							"    pm.expect(jsonData[0]).to.have.property('status', 'available'); // Asserting that the status property is 'available'",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api.url}}/v2/pet/findByStatus?status=available",
+					"host": [
+						"{{api.url}}"
+					],
+					"path": [
+						"v2",
+						"pet",
+						"findByStatus"
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "available"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
