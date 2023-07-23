@@ -19,9 +19,10 @@
 							"",
 							"const jsonData = pm.response.json();",
 							"",
-							"pm.test(\"Type response\", function() {",
+							"pm.test(\"Type response is a string\", function() {",
 							"    pm.expect(jsonData.type).to.equal(pm.variables.get(\"type\")).and.to.be.a('string');",
 							"});",
+							"",
 							"",
 							""
 						],
@@ -67,6 +68,14 @@
 						"exec": [
 							"pm.test(\"Successful response with code 200 OK\", function() {",
 							"    pm.response.to.have.status(200).and.to.have.status(\"OK\");",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Check login Successful\", function () {",
+							"    var message = jsonData.message;",
+							"    ",
+							"    pm.expect(message.startsWith(\"logged in user session:\")).to.be.true;",
 							"});"
 						],
 						"type": "text/javascript"
@@ -116,16 +125,18 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"const jsonData = pm.response.json();",
+							"var jsonData = pm.response.json();",
 							"",
 							"pm.test(\"Cantidad de mascotas con Status disponible\", function() {",
 							"    pm.expect(Object.keys(jsonData).length<0);",
 							"});",
 							"",
-							"pm.test(\"Validate the response has the correct name and status\", function () {",
-							"    pm.expect(jsonData).to.be.an('array'); // Asserting that the response is an array",
-							"    pm.expect(jsonData[0]).to.have.property('name', 'fish'); // Asserting that the name property is 'fish'",
-							"    pm.expect(jsonData[0]).to.have.property('status', 'available'); // Asserting that the status property is 'available'",
+							"pm.test(\"Check that all items have status 'available'\", function () {",
+							"",
+							"    jsonData.forEach(function (item) {",
+							"        pm.expect(item).to.have.property(\"status\");",
+							"        pm.expect(item.status).to.eql(\"available\");",
+							"    });",
 							"});"
 						],
 						"type": "text/javascript"
@@ -150,6 +161,165 @@
 							"key": "status",
 							"value": "available"
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search Pet",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful response with code 200 OK\", function() {",
+							"    pm.response.to.have.status(200).and.to.have.status(\"OK\");",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"pm.test(\"Check field exist\", function () {",
+							"",
+							"    pm.expect(jsonData).to.have.property(\"id\");",
+							"    pm.expect(jsonData).to.have.property(\"category\");",
+							"    pm.expect(jsonData).to.have.property(\"name\");",
+							"    pm.expect(jsonData).to.have.property(\"photoUrls\");",
+							"    pm.expect(jsonData).to.have.property(\"tags\");",
+							"    pm.expect(jsonData).to.have.property(\"status\");",
+							"});",
+							"",
+							"pm.test(\"Check ID is a number\", function () {",
+							"    pm.expect(typeof jsonData.id).to.eql(\"number\");",
+							"});",
+							"",
+							"pm.test(\"Check status in valid state\", function () {",
+							"    var validStatuses = [\"available\", \"pending\", \"sold\"];",
+							"    pm.expect(validStatuses).to.include(jsonData.status);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api.url}}/v2/pet/5",
+					"host": [
+						"{{api.url}}"
+					],
+					"path": [
+						"v2",
+						"pet",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful response with code 200 OK\", function() {",
+							"    pm.response.to.have.status(200).and.to.have.status(\"OK\");",
+							"});",
+							"",
+							"pm.test(\"Verify structure in body \", function() {",
+							"    var responseJson = pm.response.json();",
+							"",
+							"    pm.expect(responseJson).to.be.an(\"object\");",
+							"    pm.expect(responseJson).to.have.property(\"id\");",
+							"    pm.expect(responseJson).to.have.property(\"petId\");",
+							"    pm.expect(responseJson).to.have.property(\"quantity\");",
+							"    pm.expect(responseJson).to.have.property(\"shipDate\");",
+							"    pm.expect(responseJson).to.have.property(\"status\");",
+							"    pm.expect(responseJson).to.have.property(\"complete\");",
+							"});",
+							"",
+							"pm.test(\"Verify types response\", function() {",
+							"    var responseJson = pm.response.json();",
+							"",
+							"    pm.expect(responseJson.id).to.be.a(\"number\");",
+							"    pm.expect(responseJson.petId).to.be.a(\"number\");",
+							"    pm.expect(responseJson.quantity).to.be.a(\"number\");",
+							"    pm.expect(responseJson.shipDate).to.be.a(\"string\");",
+							"    pm.expect(responseJson.status).to.be.a(\"string\");",
+							"    pm.expect(responseJson.complete).to.be.a(\"boolean\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": 1,\n  \"petId\": 0,\n  \"quantity\": 0,\n  \"shipDate\": \"2023-07-23\",\n  \"status\": \"placed\",\n  \"complete\": true\n}"
+				},
+				"url": {
+					"raw": "{{api.url}}/v2/store/order",
+					"host": [
+						"{{api.url}}"
+					],
+					"path": [
+						"v2",
+						"store",
+						"order"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user Logout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful response with code 200 OK\", function() {",
+							"    pm.response.to.have.status(200).and.to.have.status(\"OK\");",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Message ok when logout\", function(){",
+							"    var message = jsonData.message;",
+							"    pm.expect(jsonData.message).to.equal(\"ok\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api.url}}/v2/user/logout",
+					"host": [
+						"{{api.url}}"
+					],
+					"path": [
+						"v2",
+						"user",
+						"logout"
 					]
 				}
 			},
